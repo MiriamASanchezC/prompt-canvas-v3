@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+html, body, #__next {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Sistema de fondos: Color + Estilo */
+
+/* Colores base */
+.bg-white-solid { background-color: #ffffff; }
+.bg-white-notebook { 
+  background-color: #ffffff;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 24px,
+    #e8e8e8 24px,
+    #e8e8e8 25px
+  );
+}
+.bg-white-dots { 
+  background-color: #ffffff;
+  /* Sin background-image - ReactFlow dibuja los puntos */
+}
+.bg-white-grid { 
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(#d1d5db 1px, transparent 1px),
+    linear-gradient(90deg, #d1d5db 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-cream-solid { background-color: #f8f6f0; }
+.bg-cream-notebook { 
+  background-color: #f8f6f0;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 24px,
+    #e5ddd5 24px,
+    #e5ddd5 25px
+  );
+}
+.bg-cream-dots { 
+  background-color: #f8f6f0;
+  /* Sin background-image - ReactFlow dibuja los puntos */
+}
+.bg-cream-grid { 
+  background-color: #f8f6f0;
+  background-image: 
+    linear-gradient(#d4c4b0 1px, transparent 1px),
+    linear-gradient(90deg, #d4c4b0 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-gray-solid { background-color: #f5f5f5; }
+.bg-gray-notebook { 
+  background-color: #f5f5f5;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 24px,
+    #e0e0e0 24px,
+    #e0e0e0 25px
+  );
+}
+.bg-gray-dots { 
+  background-color: #f5f5f5;
+  /* Sin background-image - ReactFlow dibuja los puntos */
+}
+.bg-gray-grid { 
+  background-color: #f5f5f5;
+  background-image: 
+    linear-gradient(#c0c0c0 1px, transparent 1px),
+    linear-gradient(90deg, #c0c0c0 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-black-solid { background-color: #1a1a1a; }
+.bg-black-notebook { 
+  background-color: #1a1a1a;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 24px,
+    #333333 24px,
+    #333333 25px
+  );
+}
+.bg-black-dots { 
+  background-color: #1a1a1a;
+  /* Sin background-image - ReactFlow dibuja los puntos */
+}
+.bg-black-grid { 
+  background-color: #1a1a1a;
+  background-image: 
+    linear-gradient(#404040 1px, transparent 1px),
+    linear-gradient(90deg, #404040 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Custom scrollbar styles */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
