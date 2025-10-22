@@ -11,6 +11,7 @@ interface Message {
   timestamp: Date;
 }
 
+
 interface CardNodeData {
   title: string;
   content: string;
@@ -128,12 +129,13 @@ export default function CardNode({ data, id, selected }: CardNodeProps) {
             selected ? 'border-blue-500 shadow-xl' : 'border-blue-200 hover:border-blue-300'
           }`}
           style={{ 
-            width: '350px',
-            minHeight: '200px'
+            width: '700px',
+            minHeight: '200px',
+            borderRadius: '16px'
           }}
         >
           {/* Header */}
-          <div className="p-4 border-b border-blue-200 bg-gradient-to-r from-blue-100 to-blue-200 rounded-t-xl">
+          <div className="p-4 border-b border-blue-200 bg-gradient-to-r from-blue-100 to-blue-200 rounded-t-xl ">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                 <Plus className="w-6 h-6 text-white" />
@@ -179,9 +181,7 @@ export default function CardNode({ data, id, selected }: CardNodeProps) {
                 )}
               </button>
               
-              <div className="text-xs text-blue-600 text-center">
-                💡 Presiona Enter para crear • Shift+Enter para nueva línea
-              </div>
+              
             </div>
           </div>
         </div>
