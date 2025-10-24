@@ -274,17 +274,18 @@ export default function Canvas({ user }: CanvasProps) {
   };
 
   // Actualizar nodos existentes para pasar la función onCreateQuestion
-  const nodesWithCallbacks = nodes.map(node => 
-    node.data?.type === 'question-hub' 
-      ? {
-          ...node,
-          data: {
-            ...node.data,
-            onCreateQuestion: (question: string) => createQuestionCard(question, node.id)
-          }
-        }
-      : node
-  );
+  const nodesWithCallbacks = nodes.map(node => ({
+    ...node,
+    data: {
+      ...node.data,
+      // Para question-hub: función de crear preguntas
+      ...(node.data?.type === 'question-hub' && {
+        onCreateQuestion: (question: string) => createQuestionCard(question, node.id)
+      }),
+      // Para TODOS los nodos: función de eliminar
+      onDelete: () => deleteNode(node.id)
+    }
+  }));
 
   const updateNodeData = useCallback((nodeId: string, newData: any) => {
     setNodes((nds) =>

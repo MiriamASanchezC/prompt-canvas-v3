@@ -22,6 +22,7 @@ interface CardNodeData {
   answer?: string;
   timestamp?: Date;
   onCreateQuestion?: (question: string) => void; // 👈 Agregamos esto
+  onDelete?: () => void;
 }
 
 interface CardNodeProps {
@@ -129,7 +130,7 @@ export default function CardNode({ data, id, selected }: CardNodeProps) {
             selected ? 'border-blue-500 shadow-xl' : 'border-blue-200 hover:border-blue-300'
           }`}
           style={{ 
-            width: '700px',
+            width: '500px',
             minHeight: '200px',
             borderRadius: '16px'
           }}
@@ -150,10 +151,7 @@ export default function CardNode({ data, id, selected }: CardNodeProps) {
           {/* Input Area */}
           <div className="p-6">
             <div className="space-y-4">
-              <div className="flex items-center space-x-2 text-sm text-blue-700">
-                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="font-medium">Nueva pregunta</span>
-              </div>
+             
               
               <textarea
                 value={currentQuestion}
@@ -163,6 +161,12 @@ export default function CardNode({ data, id, selected }: CardNodeProps) {
                 placeholder="¿Qué te gustaría saber?"
                 rows={3}
                 disabled={isLoadingResponse}
+                style={{ 
+                width: '494px',
+                height: '100px',
+                fontSize: '16px',
+           
+              }}
               />
               
               <button
@@ -234,13 +238,13 @@ export default function CardNode({ data, id, selected }: CardNodeProps) {
           }}
         >
           {/* Header con la pregunta como título */}
-          <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-blue-100 rounded-t-lg flex-shrink-0">
+          <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-blue-100 rounded-t-lg flex-shrink-0 ">
             <div className="flex items-start space-x-3">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-bold text-white">Q</span>
+                
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-blue-900 leading-tight break-words">
+              <div className="flex-1 min-w-0 ">
+                <h3 className="text-sm font-semibold text-blue-900 leading-tight break-words ">
                   {data.question || data.title}
                 </h3>
                 {data.timestamp && (
@@ -252,7 +256,9 @@ export default function CardNode({ data, id, selected }: CardNodeProps) {
               <button
                 className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-blue-200 rounded"
                 onClick={(e) => {
+                 
                   e.stopPropagation();
+                  data.onDelete?.();
                   // Función de eliminar
                 }}
                 type="button"
@@ -266,7 +272,6 @@ export default function CardNode({ data, id, selected }: CardNodeProps) {
           <div className="flex-1 p-4 overflow-y-auto">
             <div className="flex items-start space-x-3">
               <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-bold text-white">A</span>
               </div>
               <div className="flex-1 min-w-0">
                 {data.answer ? (

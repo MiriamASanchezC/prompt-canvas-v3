@@ -48,7 +48,7 @@ export default function Sidebar({ onCreateCard, onOpenSettings, isModernMode = f
         onClick={() => onCreateCard('question-hub')}
         className="w-12 h-12 rounded-lg transition-all duration-200 flex items-center justify-center group relative"
         style={{
-          backgroundColor: isModernMode ? '#2563eb' : '#dbeafe',
+          backgroundColor: '#2563eb' ,
           color: isModernMode ? '#ffffff' : '#1d4ed8',
           boxShadow: isModernMode ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
         }}
