@@ -1,3 +1,8 @@
+// src/lib/supabase.ts
+// ARCHIVO TEMPORALMENTE DESHABILITADO PARA PROBAR IA
+// Descomentar cuando implementemos autenticación y base de datos
+
+/*
 import { createClient } from '@supabase/supabase-js';
 
 // Valores temporales para desarrollo - reemplazar con valores reales
@@ -83,3 +88,7 @@ export interface Connection {
   metadata: any;
   created_at: string;
 }
+*/
+
+// Placeholder para evitar errores de compilación
+export const supabase = null;

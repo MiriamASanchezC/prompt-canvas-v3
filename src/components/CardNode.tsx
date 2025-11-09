@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import { MessageSquare, StickyNote, FileText, Trash2, Plus } from 'lucide-react';
+import FormattedText from './FormattedText';
 
 interface Message {
   id: string;
@@ -23,6 +24,7 @@ interface CardNodeData {
   timestamp?: Date;
   onCreateQuestion?: (question: string) => void; // 👈 Agregamos esto
   onDelete?: () => void;
+  isLoading?: boolean; // 👈 Agregamos esto
 }
 
 interface CardNodeProps {
@@ -270,24 +272,20 @@ export default function CardNode({ data, id, selected }: CardNodeProps) {
 
           {/* Answer Section */}
           <div className="flex-1 p-4 overflow-y-auto">
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+            {data.isLoading ? (
+              <div className="flex items-center space-x-2 text-blue-600 p-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <span className="text-sm">La IA está procesando tu pregunta...</span>
               </div>
-              <div className="flex-1 min-w-0">
-                {data.answer ? (
-                  <div className="text-sm text-gray-700 leading-relaxed space-y-2">
-                    {data.answer.split('\n\n').map((paragraph, i) => (
-                      <p key={i} className="whitespace-pre-wrap break-words">{paragraph}</p>
-                    ))}
-                  </div>
+            ) : (
+              <div className="p-2">
+                {data.content ? (
+                  <FormattedText text={data.content} />
                 ) : (
-                  <div className="flex items-center space-x-2 text-gray-500 py-4">
-                    <div className="animate-spin w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full"></div>
-                    <span className="text-sm italic">Generando respuesta...</span>
-                  </div>
+                  <p className="text-gray-500 text-sm">No hay contenido disponible.</p>
                 )}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

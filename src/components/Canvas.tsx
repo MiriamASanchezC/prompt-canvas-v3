@@ -85,6 +85,14 @@ export default function Canvas({ user }: CanvasProps) {
   const [currentCanvasId, setCurrentCanvasId] = useState<string | null>(null);
   const [showCanvasList, setShowCanvasList] = useState(false);
 
+  // Estado para el contexto conversacional
+  const [conversationContext, setConversationContext] = useState<Array<{
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: Date;
+    nodeId: string;
+  }>>([]);
+
   const currentCanvas = canvases.find(c => c.id === currentCanvasId);
 
   const createNewCanvas = () => {
@@ -166,8 +174,8 @@ export default function Canvas({ user }: CanvasProps) {
     setPendingConnection(null);
   }, []);
 
-  // Función para crear cards de preguntas desde el question hub
-  const createQuestionCard = useCallback((question: string, hubNodeId?: string) => {
+  // Función actualizada para crear cards con contexto
+  const createQuestionCard = useCallback(async (question: string, hubNodeId?: string) => {
     const newNodeId = `question-${Date.now()}`;
     
     // Buscar el nodo hub que creó la pregunta
@@ -176,7 +184,7 @@ export default function Canvas({ user }: CanvasProps) {
     // Calcular posición alrededor del hub o posición aleatoria
     let newX, newY;
     if (hubNode) {
-      const angle = (questionCounter - 1) * (Math.PI / 3); // 60 grados entre cada card
+      const angle = (questionCounter - 1) * (Math.PI / 3);
       const radius = 350;
       newX = hubNode.position.x + Math.cos(angle) * radius;
       newY = hubNode.position.y + Math.sin(angle) * radius;
@@ -185,18 +193,21 @@ export default function Canvas({ user }: CanvasProps) {
       newY = Math.random() * 300 + 200;
     }
 
+    // Crear nodo inicial
     const newNode: Node = {
       id: newNodeId,
       type: 'card',
       position: { x: newX, y: newY },
       data: {
         title: question,
-        content: '',
+        content: '🤖 Procesando con IA...',
         type: 'conversation',
         color: '#10B981',
         question: question,
         answer: '',
-        timestamp: new Date()
+        timestamp: new Date(),
+        isLoading: true,
+        contextId: hubNodeId // Agregar referencia al hub para contexto
       },
     };
 
@@ -216,8 +227,76 @@ export default function Canvas({ user }: CanvasProps) {
       setEdges((eds) => [...eds, newEdge]);
     }
 
-    // Simular respuesta después de un delay
-    setTimeout(() => {
+    // 🧠 PREPARAR CONTEXTO CONVERSACIONAL
+    // Obtener conversaciones previas del mismo hub
+    const hubContext = conversationContext.filter(ctx => 
+      nodes.find(node => node.id === ctx.nodeId)?.data?.contextId === hubNodeId
+    );
+
+    // Crear mensajes para la IA incluyendo contexto
+    const messages = [
+      {
+        role: "system" as const,
+        content: "Eres un asistente de IA experto en programación y desarrollo web. Responde de manera clara, concisa y útil en español. Si hay contexto previo de la conversación, úsalo para dar respuestas más precisas y relevantes."
+      }
+    ];
+
+    // Agregar contexto previo (últimas 5 interacciones para no sobrecargar)
+    const recentContext = hubContext.slice(-10); // Últimas 5 pares pregunta-respuesta
+    recentContext.forEach(ctx => {
+      messages.push({
+        role: ctx.role,
+        content: ctx.content
+      });
+    });
+
+    // Agregar la pregunta actual
+    messages.push({
+      role: "user" as const,
+      content: question
+    });
+
+    // 🤖 LLAMAR A LA IA CON CONTEXTO
+    try {
+      console.log('🚀 Enviando pregunta a IA con contexto:', {
+        question,
+        contextLength: recentContext.length,
+        hubId: hubNodeId
+      });
+      
+      const response = await fetch('/api/chat-with-context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          messages: messages,
+          hubId: hubNodeId 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Guardar en el contexto conversacional
+      const userMessage = {
+        role: 'user' as const,
+        content: question,
+        timestamp: new Date(),
+        nodeId: newNodeId
+      };
+      
+      const assistantMessage = {
+        role: 'assistant' as const,
+        content: data.message,
+        timestamp: new Date(),
+        nodeId: newNodeId
+      };
+
+      setConversationContext(prev => [...prev, userMessage, assistantMessage]);
+      
+      // Actualizar el nodo con la respuesta
       setNodes((nds) =>
         nds.map((node) =>
           node.id === newNodeId
@@ -225,14 +304,65 @@ export default function Canvas({ user }: CanvasProps) {
                 ...node,
                 data: {
                   ...node.data,
-                  answer: `Respuesta detallada para: "${question}"\n\nEsta es una respuesta simulada que demuestra cómo se adaptaría el contenido al tamaño de la card. La respuesta incluye información relevante y se ajusta automáticamente.\n\nLa card se redimensiona según la cantidad de contenido para mantener todo visible sin scroll excesivo.`
+                  content: data.message || 'No pude generar una respuesta.',
+                  answer: data.message || 'No pude generar una respuesta.',
+                  isLoading: false
                 }
               }
             : node
         )
       );
-    }, 2000);
-  }, [nodes, setNodes, setEdges, questionCounter]);
+      
+      console.log('✅ Respuesta con contexto recibida y guardada');
+      
+    } catch (error) {
+      console.error('❌ Error al obtener respuesta con contexto:', error);
+      
+      // Fallback a la API simple sin contexto
+      try {
+        const fallbackResponse = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: question })
+        });
+        
+        const fallbackData = await fallbackResponse.json();
+        
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === newNodeId
+              ? {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    content: fallbackData.message || 'Error al procesar la pregunta.',
+                    answer: fallbackData.message || 'Error al procesar la pregunta.',
+                    isLoading: false
+                  }
+                }
+              : node
+          )
+        );
+      } catch (fallbackError) {
+        // Error final
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === newNodeId
+              ? {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    content: 'Lo siento, hubo un error al procesar tu pregunta.',
+                    isLoading: false,
+                    hasError: true
+                  }
+                }
+              : node
+          )
+        );
+      }
+    }
+  }, [nodes, setNodes, setEdges, questionCounter, conversationContext]);
 
   const addCard = useCallback((type: 'conversation' | 'note' | 'template' | 'question-hub' = 'conversation', color?: string) => {
     console.log('🎯 Creando card de tipo:', type); // Para debug
